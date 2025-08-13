@@ -1,83 +1,64 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const baseUrlInput = document.createElement('input');
-    baseUrlInput.type = 'text';
-    baseUrlInput.placeholder = 'Enter base URL (e.g., https://tracker.example.com/)';
-    baseUrlInput.style.width = '100%';
+document.getElementById("sortBtn").addEventListener("click", () => {
+    let baseUrl = document.getElementById("baseUrl").value.trim();
+    let bugList = document.getElementById("bugList").value.trim();
 
-    // Load base URL from localStorage
-    baseUrlInput.value = localStorage.getItem('buglinker_base_url') || '';
-
-    const textarea = document.createElement('textarea');
-    textarea.placeholder = 'Enter bug IDs separated by comma or newline';
-    textarea.style.width = '100%';
-    textarea.style.height = '100px';
-
-    const button = document.createElement('button');
-    button.textContent = 'Generate Links';
-
-    const output = document.createElement('div');
-    output.style.marginTop = '1em';
-
-    document.body.appendChild(baseUrlInput);
-    document.body.appendChild(document.createElement('br'));
-    document.body.appendChild(textarea);
-    document.body.appendChild(document.createElement('br'));
-    document.body.appendChild(button);
-    document.body.appendChild(output);
-
-    function parseBugIds(text) {
-        // Split by comma or newline, trim, and filter out empty
-        return text
-            .split(/[\n,]+/)
-            .map(s => s.trim())
-            .filter(Boolean);
+    if (!baseUrl || !bugList) {
+        alert("Please enter both Base URL and Bug IDs.");
+        return;
     }
 
-    function groupAndSort(ids) {
-        const groups = {};
-        ids.forEach(id => {
-            // Match prefix and number (e.g., BUG-1234)
-            const match = id.match(/^([A-Za-z]+)[-_]?(\d+)$/);
-            if (match) {
-                const prefix = match[1].toUpperCase();
-                const num = parseInt(match[2], 10);
-                if (!groups[prefix]) groups[prefix] = [];
-                groups[prefix].push({ raw: id, num });
-            }
-        });
-        // Sort each group numerically
-        Object.keys(groups).forEach(prefix => {
-            groups[prefix].sort((a, b) => a.num - b.num);
-        });
-        return groups;
-    }
+    localStorage.setItem("buglinkerBaseUrl", baseUrl);
 
-    function renderLinks(groups, baseUrl) {
-        output.innerHTML = '';
-        Object.keys(groups).sort().forEach(prefix => {
-            const groupDiv = document.createElement('div');
-            groupDiv.innerHTML = `<strong>${prefix}</strong>: `;
-            groups[prefix].forEach(({ raw }) => {
-                const link = document.createElement('a');
-                link.href = baseUrl.replace(/\/?$/, '/') + raw;
-                link.textContent = raw;
-                link.target = '_blank';
-                link.style.marginRight = '8px';
-                groupDiv.appendChild(link);
-            });
-            output.appendChild(groupDiv);
-        });
-    }
+    let bugs = bugList.split(/[\s,]+/).filter(b => b);
 
-    button.addEventListener('click', () => {
-        const baseUrl = baseUrlInput.value.trim();
-        if (!baseUrl) {
-            alert('Please enter a base URL.');
-            return;
+    bugs.sort((a, b) => {
+        let [prefixA, numA] = a.split("-");
+        let [prefixB, numB] = b.split("-");
+        if (prefixA === prefixB) {
+            return parseInt(numA) - parseInt(numB);
         }
-        localStorage.setItem('buglinker_base_url', baseUrl);
-        const ids = parseBugIds(textarea.value);
-        const groups = groupAndSort(ids);
-        renderLinks(groups, baseUrl);
+        return prefixA.localeCompare(prefixB);
     });
+
+    let resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = "";
+
+    bugs.forEach(bug => {
+        let severity = getSeverity(bug);
+
+        let item = document.createElement("div");
+        item.className = "bug-item";
+
+        let link = document.createElement("a");
+        link.href = baseUrl + bug;
+        link.target = "_blank";
+        link.textContent = bug;
+
+        let tag = document.createElement("span");
+        tag.className = `tag ${severity.toLowerCase()}`;
+        tag.textContent = severity.charAt(0).toUpperCase() + severity.slice(1);
+
+        item.appendChild(link);
+        item.appendChild(tag);
+        resultDiv.appendChild(item);
+    });
+});
+
+function getSeverity(bugId) {
+    // Simple rule: detect keywords or assign randomly
+    let id = bugId.toLowerCase();
+    if (id.includes("crit") || id.includes("p0")) return "critical";
+    if (id.includes("major") || id.includes("p1")) return "major";
+    if (id.includes("minor") || id.includes("p2")) return "minor";
+
+    // Random fallback
+    let types = ["critical", "major", "minor"];
+    return types[Math.floor(Math.random() * types.length)];
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    let savedUrl = localStorage.getItem("buglinkerBaseUrl");
+    if (savedUrl) {
+        document.getElementById("baseUrl").value = savedUrl;
+    }
 });
