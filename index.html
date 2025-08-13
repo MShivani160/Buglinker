@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BugLinker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>BugLinker</h1>
+    <div>
+        <label for="base-url">Base Bug Tracker URL:</label>
+        <input type="text" id="base-url" placeholder="https://tracker.example.com/bug/">
+    </div>
+    <div>
+        <label for="bug-ids">Bug IDs (one per line):</label><br>
+        <textarea id="bug-ids" rows="8" cols="40" placeholder="12345&#10;67890"></textarea>
+    </div>
+    <button id="sort-btn">Sort Bugs</button>
+    <h2>Sorted Bug Links</h2>
+    <div id="links-area"></div>
+    <script src="script.js"></script>
+</body>
+</html>
