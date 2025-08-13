@@ -1,31 +1,34 @@
-body {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
+/* Previous styles here... keep them */
+
+.bug-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 6px 0;
+    transition: background 0.2s;
 }
 
-textarea, input {
-  width: 100%;
-  margin: 10px 0;
-  padding: 8px;
+.bug-item:hover {
+    background: #e3f2fd;
 }
 
-button {
-  background-color: #28a745;
-  color: white;
-  padding: 8px 16px;
-  border: none;
-  cursor: pointer;
+.bug-item a {
+    text-decoration: none;
+    font-weight: 600;
+    color: #0984e3;
 }
 
-button:hover {
-  background-color: #218838;
+.tag {
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
 }
 
-#result a {
-  display: block;
-  margin: 5px 0;
-  color: blue;
-  text-decoration: underline;
-}
+.tag.critical { background: #e74c3c; }
+.tag.major { background: #e67e22; }
+.tag.minor { background: #27ae60; }
